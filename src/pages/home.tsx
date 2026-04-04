@@ -3,6 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
+interface VivaDisk {
+  name: string;
+  kind: "HDD" | "SSD" | "Unknown";
+  storage: number;
+  storageText?: string;
+}
 interface SystemInfoMemory {
   totalMemory: number;
   usedMemory: number;
@@ -12,6 +18,11 @@ interface SystemInfoMemory {
   usedMemoryText: string;
   totalSwapText: string;
   usedSwapText: string;
+  systemName: string;
+  systemKernelVersion: string;
+  systemOsVersion: string;
+  systemHostName: string;
+  disks: VivaDisk[];
 }
 
 export default function Home() {
@@ -62,6 +73,21 @@ export default function Home() {
       <div>Used: {systemInfo?.usedMemoryText}</div>
       <div>Total Swap: {systemInfo?.totalSwapText}</div>
       <div>Used Swap: {systemInfo?.usedSwapText}</div>
+      <h1>System</h1>
+      <div>Name: {systemInfo?.systemName}</div>
+      <div>Kernel Version: {systemInfo?.systemKernelVersion}</div>
+      <div>OS Version: {systemInfo?.systemOsVersion}</div>
+      <div>Host Name: {systemInfo?.systemHostName}</div>
+      <h1>磁盘</h1>
+      <div className="flex flex-col space-x-4 bg-accent">
+        {systemInfo?.disks?.map((disk, index) => (
+          <div key={index} className="flex gap-3">
+            <div>磁盘名字：{disk.name}</div>
+            <div>磁盘类型：{disk.kind}</div>
+            <div>磁盘容量：{disk.storageText}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
