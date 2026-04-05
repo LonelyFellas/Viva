@@ -17,9 +17,12 @@ enum VivaDiskKind {
 #[serde(rename_all = "camelCase")]
 pub struct VivaDisk {
     name: String,
+    mount_point: String,
     disk_kind: VivaDiskKind,
-    storage: u64,
-    storage_text: Option<String>,
+    total_space: u64,
+    total_space_text: String,
+    available_space: u64,
+    available_space_text: String,
 }
 
 #[derive(Serialize)]
@@ -60,6 +63,7 @@ pub fn get_system_info() -> Result<SystemInfoMemory, String> {
     let system_kernel_version = System::kernel_version();
     let system_os_version = System::os_version();
     let system_host_name = System::host_name();
+    let system = System::new();
 
     let nb_cpus = sys.cpus().len();
 
@@ -69,13 +73,16 @@ pub fn get_system_info() -> Result<SystemInfoMemory, String> {
         .iter()
         .map(|disk| VivaDisk {
             name: disk.name().to_string_lossy().to_string(),
+            mount_point: disk.mount_point().to_string_lossy().to_string(),
             disk_kind: match disk.kind() {
                 DiskKind::HDD => VivaDiskKind::HDD,
                 DiskKind::SSD => VivaDiskKind::SSD,
                 DiskKind::Unknown(value) => VivaDiskKind::Unknown(value),
             },
-            storage: disk.total_space(),
-            storage_text: Some(format_bytes(disk.total_space())),
+            total_space: disk.total_space(),
+            total_space_text: format_bytes(disk.total_space()),
+            available_space: disk.available_space(),
+            available_space_text: format_bytes(disk.available_space()),
         })
         .collect();
 

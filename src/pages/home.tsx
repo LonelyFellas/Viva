@@ -2,27 +2,17 @@ import IpApi from "@/api/public/ip";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import type {
+  VivaDiskKindPayload,
+  SystemInfoMemory,
+  NetworkInfo,
+} from "./model";
 
-interface VivaDisk {
-  name: string;
-  kind: "HDD" | "SSD" | "Unknown";
-  storage: number;
-  storageText?: string;
-}
-interface SystemInfoMemory {
-  totalMemory: number;
-  usedMemory: number;
-  totalSwap: number;
-  usedSwap: number;
-  totalMemoryText: string;
-  usedMemoryText: string;
-  totalSwapText: string;
-  usedSwapText: string;
-  systemName: string;
-  systemKernelVersion: string;
-  systemOsVersion: string;
-  systemHostName: string;
-  disks: VivaDisk[];
+export function diskKindLabel(kind: VivaDiskKindPayload): string {
+  if (kind.SSD !== undefined) return "SSD";
+  if (kind.HDD !== undefined) return "HDD";
+  if (kind.Unknown !== undefined) return `Unknown(${kind.Unknown})`;
+  return "?";
 }
 
 export default function Home() {
@@ -36,9 +26,12 @@ export default function Home() {
     queryKey: ["systemInfo"],
     queryFn: async () => await invoke<SystemInfoMemory>("get_system_info"),
   });
+  const { data: networkInfo } = useQuery({
+    queryKey: ["networkInfo"],
+    queryFn: async () => await invoke<NetworkInfo>("get_network_info"),
+  });
 
   console.log(systemInfo);
-
   const countryCodeToFlag = useMemo(
     () =>
       data?.country_code
@@ -53,7 +46,7 @@ export default function Home() {
   );
 
   return (
-    <div>
+    <div className="p-3">
       <h1>本地的地理位置信息</h1>
       <div>
         国家: {countryCodeToFlag} - {data?.country}
@@ -83,11 +76,14 @@ export default function Home() {
         {systemInfo?.disks?.map((disk, index) => (
           <div key={index} className="flex gap-3">
             <div>磁盘名字：{disk.name}</div>
-            <div>磁盘类型：{disk.kind}</div>
-            <div>磁盘容量：{disk.storageText}</div>
+            <div>挂载点：{disk.mountPoint}</div>
+            <div>磁盘类型：{diskKindLabel(disk.diskKind)}</div>
+            <div>磁盘容量：{disk.totalSpaceText}</div>
+            <div>磁盘可用容量：{disk.availableSpaceText}</div>
           </div>
         ))}
       </div>
+      <pre>{JSON.stringify(networkInfo)}</pre>
     </div>
   );
 }
