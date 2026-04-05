@@ -63,7 +63,7 @@ pub fn get_system_info() -> Result<SystemInfoMemory, String> {
     let system_kernel_version = System::kernel_version();
     let system_os_version = System::os_version();
     let system_host_name = System::host_name();
-    let system = System::new();
+    // let system = System::new();
 
     let nb_cpus = sys.cpus().len();
 
