@@ -1,25 +1,34 @@
-use std::io::{self, Write};
-use std::net::{TcpListener, TcpStream};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::TcpListener;
 
-fn handle_client(mut stream: TcpStream) {
-    let response = "HTTP/1.1 200 OK\r\n\r\nHello World";
-    stream.write_all(response.as_bytes()).unwrap();
-}
+#[tokio::main]
+pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let listener = TcpListener::bind("0.0.0.0:8080").await?;
 
-//@LonelyFellas 本地网络主函数
-pub fn local_network_main() -> io::Result<()> {
-    let listener = TcpListener::bind("0.0.0.0:7891")?;
-    println!("Listening on 0.0.0.0:7891");
+    loop {
+        let (mut socket, _) = listener.accept().await?;
 
-    for stream in listener.incoming() {
-        match stream {
-            Ok(_stream) => {
-                handle_client(_stream);
+        tokio::spawn(async move {
+            let mut buf = [0; 1024];
+
+            // In a loop, read data from the socket and write the data back.
+            loop {
+                let n = match socket.read(&mut buf).await {
+                    // socket closed
+                    Ok(0) => return,
+                    Ok(n) => n,
+                    Err(e) => {
+                        eprintln!("failed to read from socket; err = {:?}", e);
+                        return;
+                    }
+                };
+
+                // Write the data back
+                if let Err(e) = socket.write_all(&buf[0..n]).await {
+                    eprintln!("failed to write to socket; err = {:?}", e);
+                    return;
+                }
             }
-            Err(e) => {
-                println!("Error: {}", e);
-            }
-        }
+        });
     }
-    Ok(())
 }

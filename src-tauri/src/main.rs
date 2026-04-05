@@ -3,11 +3,10 @@
 
 mod server;
 
+#[warn(unused)]
 fn main() {
     std::thread::spawn(|| {
-        if let Err(e) = server::local_network_main() {
-            eprintln!("local network main failed: {e}");
-        }
+        let _ = server::main();
     });
 
     viva_lib::run();
