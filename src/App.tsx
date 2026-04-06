@@ -1,10 +1,6 @@
 import "./global.css";
-import { AppProviders } from "./prividers";
+import { AppProviders } from "./providers";
 
 export default function App(props: React.PropsWithChildren) {
-  return (
-    <AppProviders>
-      {props.children}
-    </AppProviders>
-  )
+  return <AppProviders>{props.children}</AppProviders>;
 }
