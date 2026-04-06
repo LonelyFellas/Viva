@@ -1,0 +1,6 @@
+{
+  "extends": "./tauri.conf.default.json",
+  "build": {
+    "api_base": "http://192.168.101.118:7890"
+  }
+}
