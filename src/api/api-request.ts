@@ -1,8 +1,8 @@
 export default class ApiRequest {
     private readonly baseUrl: string;
 
-    constructor(baseUrl: string) {
-        this.baseUrl = baseUrl;
+    constructor(baseUrl?: string) {
+        this.baseUrl = baseUrl ?? import.meta.env.VITE_API_BASE_URL;
     }
 
     async baseRequest(method: Api.ApiRequestMethod, path: string, data: any) {
