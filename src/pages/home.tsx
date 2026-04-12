@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useConfigProvider } from "@/providers/config-provider/use-config-provider";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 async function mockConnect() {
@@ -49,6 +50,8 @@ async function queryDevices(): Promise<
 }
 
 export default function Home() {
+  const { config } = useConfigProvider();
+  console.log("config", config);
   const { data: dataResponse } = useQuery({
     queryKey: ["query-devices"],
     queryFn: queryDevices,
