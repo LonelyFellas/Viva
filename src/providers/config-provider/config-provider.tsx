@@ -16,7 +16,7 @@ export const ConfigProvider = createContext<{
 export function AppConfigProvider(props: React.PropsWithChildren) {
   const { data } = useQuery({
     queryKey: ["app-config"],
-    queryFn: async () => await invoke<Config>("get-config"),
+    queryFn: async () => await invoke<Config>("get_config"),
   });
 
   const config = useMemo(() => {

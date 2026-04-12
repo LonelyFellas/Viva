@@ -36,7 +36,5 @@ pub async fn query_device_api() -> Result<Vec<Device>, Box<dyn std::error::Error
         .send()
         .await?;
 
-    println!("---resp: {:?}", resp);
-
     Ok(())
 }
